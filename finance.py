@@ -5,7 +5,7 @@ import sys, os
 from langchain_community.llms import Ollama
 
 # LLM Model
-llm = Ollama(model="mistral")
+llm = Ollama(model="finance_llm_llama2")
 
 
 from os.path import dirname, join
@@ -36,31 +36,35 @@ df['categories'] = np.nan
 df['consumption_categories'] = np.nan
 
 
+zahlungsempfänger_zuweisung = pd.DataFrame()
 unique_values = df['Zahlungsempfänger*in'].unique()
-n_unique = len(unique_values)
 
-print(f'Unique ZAHLUNGSAEMPÖGER IN THIS {unique_values}')
+zahlungsempfänger_zuweisung['unique_empfänger'] = unique_values
+print(type(unique_values))
+zahlungsempfänger_zuweisung['categories'] = np.nan
+zahlungsempfänger_zuweisung['consumption_categories'] = np.nan
+
+#print(f'Unique ZAHLUNGSAEMPÖGER IN THIS {unique_values}')
 
 
 # Get index list
 #https://stackoverflow.com/questions/47518609/for-loop-range-and-interval-how-to-include-last-step
-def hop(start, stop, step):
-    for i in range(start, stop, step):
-        yield i
-    yield stop
-
-index_list = list(hop(0, len(unique_values), 30))
-index_list
-
-print(f'THIS IS INDEX KLLIS {index_list}')
+#def hop(start, stop, step):
+#    for i in range(start, stop, step):
+#        yield i
+#    yield stop
+#
+#index_list = list(hop(0, len(unique_values), 30))
+#index_list
+#
+#print(f'THIS IS INDEX KLLIS {index_list}')
 
 
 # Categorize Function
 def categorize_transaction(transaction_names, llm):
-    response = llm.invoke('Füge jedem Namen eine passende Kategorie hinzuh. Z.B.: penny - Lebensmittel, malatown - restaurant, tankstelle - Verkehr etc.. Als Kategorien, benutze ausschließlich die folgenden Begriffe: Ersparnisse, Wohnen, Verkehr, Lebensmittel, Freizeit, Restaurante, Telekommunikation, Gesundheit, Bekleidung, Sonstige, Inneneinrichtung/Wohnen. Es sind keine anderen Kategorien zulässig' + transaction_names)
+    response = llm.invoke('Füge bitte hinter jedem Zahlungsempfänger eine passende Kategorie hinzuh. Z.B.: penny - Lebensmittel, malatown - restaurant, tankstelle - Verkehr etc.. Als Kategorien, benutze ausschließlich die folgenden Begriffe: Ersparnisse, Wohnen, Verkehr, Lebensmittel, Freizeit, Restaurante, Telekommunikation, Gesundheit, Bekleidung, Sonstige, Inneneinrichtung/Wohnen. Es sind keine anderen Kategorien zulässig' + transaction_names)
     print("-----------------")
     print("RESPONSE!!!! :")
-    print(f"TYPE : {type(response)}")
     print(response)
     print("-----------------")
     response = response.split('\n')  
@@ -80,26 +84,26 @@ def categorize_transaction(transaction_names, llm):
 categories_df_all = pd.DataFrame()
 
 # Loop through the index_list
-for i in range(0, len(index_list)-1):
-    
-    transaction_names = unique_values[index_list[i]:index_list[i+1]]
-    transaction_names = ';'.join(transaction_names)
-    print(f'TRANSACTIONNAEEEMMMES {transaction_names}')
-    categories_df = categorize_transaction(transaction_names.lower(), llm)
-    categories_df_all = pd.concat([categories_df_all, categories_df], ignore_index=True)
-    categories_df_all = pd.concat([categories_df_all, categories_df], ignore_index=True)
+#for i in range(0, len(index_list)-1):
+#    
+#    transaction_names = unique_values[index_list[i]:index_list[i+1]]
+#    transaction_names = ';'.join(transaction_names)
+#    print(f'TRANSACTIONNAEEEMMMES {transaction_names}')
+#    categories_df = categorize_transaction(transaction_names.lower(), llm)
+#    categories_df_all = pd.concat([categories_df_all, categories_df], ignore_index=True)
+#    categories_df_all = pd.concat([categories_df_all, categories_df], ignore_index=True)
 
 #print(categories_df_all)
 print(categories_df_all)
 
-print(f'CATEGORIES DF ALL SIZE  {categories_df.shape}')
+#print(f'CATEGORIES DF ALL SIZE  {categories_df.shape}')
 
 categories_df_all.to_csv("categories_df_all.csv", index=False)
 
-for i in range(len(df)):
+for i in range(len(unique_values)):
     
     # Iterate through Empfänger
-    empfänger = df['Zahlungsempfänger*in'][i] 
+    empfänger = unique_values[i] 
 
     print('Empfänger der geprüft wird :' + empfänger)
     print('Jetzige kategorie :' + str(df['categories'][i]))
