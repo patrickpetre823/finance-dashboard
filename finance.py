@@ -140,7 +140,7 @@ for i in range(len(unique_values)):
             print('Neue konsum kategorie :' + str(df['consumption_categories'][i]))
             break
     
-    #Verkehr
+    #Verkehr erb
     n = 0
     for verkehr in verkehr:
         
