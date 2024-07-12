@@ -38,7 +38,7 @@ df['consumption_categories'] = np.nan
 
 zahlungsempfänger_zuweisung = pd.DataFrame()
 unique_values = df['Zahlungsempfänger*in'].unique()
-
+print(unique_values)
 zahlungsempfänger_zuweisung['unique_empfänger'] = unique_values
 print(type(unique_values))
 zahlungsempfänger_zuweisung['categories'] = np.nan
@@ -106,21 +106,24 @@ for i in range(len(unique_values)):
     empfänger = unique_values[i] 
 
     print('Empfänger der geprüft wird :' + empfänger)
+    empfänger = empfänger.lower() 
+    
+
     print('Jetzige kategorie :' + str(df['categories'][i]))
 
 
     # Category suchbegriffe
-    supermarkets = ['Penny', 'Edeka', 'REWE', 'Lidl', 'Aldi', 'DM-Drogerie']
+    supermarkets = ['penny', 'edeka', 'rewe', 'lidl', 'aldi', 'dm-drogerie', 'tedi']
     
-    verkehr = ['TANKSTELLE', 'Tankstelle', 'Esso']
+    verkehr = ['tankstelle', 'Esso']
 
-    wohnen = ['Schneider', 'E.ON', 'Rundfunk']
+    wohnen = ['schneider', 'e.on', 'rundfunk']
 
-    telekommunikation = ['Vodafone', 'Simon']
+    telekommunikation = ['vodafone', 'simon']
 
-    freizeit = ['fit', 'Block']
+    freizeit = ['fit', 'block']
 
-    inneneinrichtung = ['OBI', 'IKEA', 'KREBS', 'KOELLE']
+    inneneinrichtung = ['obi', 'ikea', 'krebs', 'koelle','pflanzen', 'farben']
 
     n = 0
     #Supermärkte
