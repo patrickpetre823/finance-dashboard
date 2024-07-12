@@ -3,100 +3,67 @@ import numpy as np
 import csv
 import sys, os
 from langchain_community.llms import Ollama
-
-# LLM Model
-llm = Ollama(model="finance_llm_llama2")
-
-
+from dash import Dash
+from dash_bootstrap_components.themes import BOOTSTRAP
+from src.components.layout import create_layout
 from os.path import dirname, join
+
 current_dir = dirname(__file__)
 file_path = join(current_dir, "./Umsatzliste_Girokonto")
 
-print(file_path)
-#with open(file_path, 'r') as f:
+def main() -> None:
+    data = load_data(file_path)
+    app = Dash(external_stylesheets=[BOOTSTRAP])
+    app.title = "Dashboard"
+    app.layout = create_layout(app)
+    app.run()
 
-col_names = ["Buchungsdatum","Wertstellung","Status","Zahlungspflichtige*r","Zahlungsempfänger*in","Verwendungszweck",
-             "Umsatztyp","IBAN","Betrag (€)","Gläubiger-ID","Mandatsreferenz","Kundenreferenz"]
+def load_data(file_path) -> pd.DataFrame:
+    
+    
+    col_names = ["Buchungsdatum","Wertstellung","Status","Zahlungspflichtige*r","Zahlungsempfänger*in","Verwendungszweck",
+                 "Umsatztyp","IBAN","Betrag (€)","Gläubiger-ID","Mandatsreferenz","Kundenreferenz"]
+    
+    df = pd.read_csv(file_path, on_bad_lines='warn', names=col_names, delimiter=';')
+    
+    df = df.iloc[1:]
+    
+    print(df['Buchungsdatum'])
+    df['Buchungsdatum'] = pd.to_datetime(df['Buchungsdatum'], dayfirst=True)
+    df['jahr'] = df['Buchungsdatum'].dt.year.astype(str)
+    df['monat'] = df['Buchungsdatum'].dt.month.astype(str)
+    categories = ['Ersparnis', 'Konsum', 'Sonstige Ausgaben']
+    consumption_categories = ["Ersparnisse", "Wohnen", "Verkehr", 'Nahrungsmittel', 'Freizeit', 'Restaurante', 'Telekommunikation', 'Gesundheit', 'Bekleidung', 'Sonstige', 'Inneneinrichtung/Wohnen']
 
-df = pd.read_csv('C:\\Patrick\\VSCode\\Umsatzliste_Girokonto.csv', on_bad_lines='warn', names=col_names, delimiter=';')
+    df['categories'] = np.nan
+    df['consumption_categories'] = np.nan
 
-#print(df.columns)
-
-# Monat
-
-#print(df['Zahlungsempfänger*in'])
+    return df
 
 
-# Kategorien
-
-categories = ['Ersparnis', 'Konsum', 'Sonstige Ausgaben']
-consumption_categories = ["Ersparnisse", "Wohnen", "Verkehr", 'Nahrungsmittel', 'Freizeit', 'Restaurante', 'Telekommunikation', 'Gesundheit', 'Bekleidung', 'Sonstige', 'Inneneinrichtung/Wohnen']
-
-df['categories'] = np.nan
-df['consumption_categories'] = np.nan
+if __name__ == '__main__':
+    main()
 
 
-zahlungsempfänger_zuweisung = pd.DataFrame()
+
+
+
 unique_values = df['Zahlungsempfänger*in'].unique()
 print(unique_values)
+
+zahlungsempfänger_zuweisung = pd.DataFrame()
 zahlungsempfänger_zuweisung['unique_empfänger'] = unique_values
-print(type(unique_values))
 zahlungsempfänger_zuweisung['categories'] = np.nan
 zahlungsempfänger_zuweisung['consumption_categories'] = np.nan
 
-#print(f'Unique ZAHLUNGSAEMPÖGER IN THIS {unique_values}')
 
-
-# Get index list
-#https://stackoverflow.com/questions/47518609/for-loop-range-and-interval-how-to-include-last-step
-#def hop(start, stop, step):
-#    for i in range(start, stop, step):
-#        yield i
-#    yield stop
-#
-#index_list = list(hop(0, len(unique_values), 30))
-#index_list
-#
-#print(f'THIS IS INDEX KLLIS {index_list}')
-
-
-# Categorize Function
-def categorize_transaction(transaction_names, llm):
-    response = llm.invoke('Füge bitte hinter jedem Zahlungsempfänger eine passende Kategorie hinzuh. Z.B.: penny - Lebensmittel, malatown - restaurant, tankstelle - Verkehr etc.. Als Kategorien, benutze ausschließlich die folgenden Begriffe: Ersparnisse, Wohnen, Verkehr, Lebensmittel, Freizeit, Restaurante, Telekommunikation, Gesundheit, Bekleidung, Sonstige, Inneneinrichtung/Wohnen. Es sind keine anderen Kategorien zulässig' + transaction_names)
-    print("-----------------")
-    print("RESPONSE!!!! :")
-    print(response)
-    print("-----------------")
-    response = response.split('\n')  
-
-    categories_df = pd.DataFrame({'Transaction vs category': response})
-    categories_df[['Transaction', 'Category']] = categories_df['Transaction vs category'].str.split(' - ', expand=True)
-
-    print("Size of DATAFRAMER :")
-    print(categories_df.shape)
-    return categories_df
-
-#categories_df = categorize_transaction(unique_values, llm)
-
+print(zahlungsempfänger_zuweisung)
 
 
 # Intialise the categories_df_all dataframe
 categories_df_all = pd.DataFrame()
 
-# Loop through the index_list
-#for i in range(0, len(index_list)-1):
-#    
-#    transaction_names = unique_values[index_list[i]:index_list[i+1]]
-#    transaction_names = ';'.join(transaction_names)
-#    print(f'TRANSACTIONNAEEEMMMES {transaction_names}')
-#    categories_df = categorize_transaction(transaction_names.lower(), llm)
-#    categories_df_all = pd.concat([categories_df_all, categories_df], ignore_index=True)
-#    categories_df_all = pd.concat([categories_df_all, categories_df], ignore_index=True)
 
-#print(categories_df_all)
-print(categories_df_all)
-
-#print(f'CATEGORIES DF ALL SIZE  {categories_df.shape}')
 
 categories_df_all.to_csv("categories_df_all.csv", index=False)
 
@@ -109,15 +76,15 @@ for i in range(len(unique_values)):
     empfänger = empfänger.lower() 
     
 
-    print('Jetzige kategorie :' + str(df['categories'][i]))
+    #print('Jetzige kategorie :' + str(df['categories'][i]))
 
 
     # Category suchbegriffe
-    supermarkets = ['penny', 'edeka', 'rewe', 'lidl', 'aldi', 'dm-drogerie', 'tedi']
+    supermarkets = ['penny', 'edeka', 'rewe', 'lidl', 'aldi', 'dm-drogerie', 'tedi', 'dm.drogerie']
     
-    verkehr = ['tankstelle', 'Esso']
+    verkehr = ['tankstelle', 'esso', 'shell']
 
-    wohnen = ['schneider', 'e.on', 'rundfunk']
+    wohnen = ['schneider', 'e.on', 'rundfunk','enbw']
 
     telekommunikation = ['vodafone', 'simon']
 
@@ -137,10 +104,10 @@ for i in range(len(unique_values)):
         
         if n > 0:
             print('NAHRUNGSMITTEL DETECTED ' + empfänger)
-            df['categories'][i] = 'Konsum'
-            df['consumption_categories'][i] = 'Nahrungsmittel'
-            print('Neue kategorie :' + str(df['categories'][i]))
-            print('Neue konsum kategorie :' + str(df['consumption_categories'][i]))
+            zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
+            zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Nahrungsmittel'
+            print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
+            print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
             break
     
     #Verkehr erb
@@ -155,10 +122,10 @@ for i in range(len(unique_values)):
         
         if n > 0:
             print('Verkehr DETECTED ' + empfänger)
-            df['categories'][i] = 'Konsum'
-            df['consumption_categories'][i] = 'Verkehr'
-            print('Neue kategorie :' + str(df['categories'][i]))
-            print('Neue konsum kategorie :' + str(df['consumption_categories'][i]))
+            zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
+            zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Verkehr'
+            print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
+            print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
             break
     
     #wohnen
@@ -173,10 +140,10 @@ for i in range(len(unique_values)):
         
         if n > 0:
             print('Wohnen DETECTED ' + empfänger)
-            df['categories'][i] = 'Konsum'
-            df['consumption_categories'][i] = 'Wohnen'
-            print('Neue kategorie :' + str(df['categories'][i]))
-            print('Neue konsum kategorie :' + str(df['consumption_categories'][i]))
+            zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
+            zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Wohnen'
+            print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
+            print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
             break
     
     #telekommunikation
@@ -190,10 +157,10 @@ for i in range(len(unique_values)):
         
         if n > 0:
             print('telekommunikation DETECTED ' + empfänger)
-            df['categories'][i] = 'Konsum'
-            df['consumption_categories'][i] = 'Telekommunikation'
-            print('Neue kategorie :' + str(df['categories'][i]))
-            print('Neue konsum kategorie :' + str(df['consumption_categories'][i]))
+            zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
+            zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Telekommunikation'
+            print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
+            print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
             break
 
     #inneneinrichtung
@@ -207,10 +174,10 @@ for i in range(len(unique_values)):
         
         if n > 0:
             print('inneneinrichtung DETECTED ' + empfänger)
-            df['categories'][i] = 'Konsum'
-            df['consumption_categories'][i] = 'Inneneinrichtung'
-            print('Neue kategorie :' + str(df['categories'][i]))
-            print('Neue konsum kategorie :' + str(df['consumption_categories'][i]))
+            zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
+            zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Inneneinrichtung'
+            print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
+            print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
             break
 
 
@@ -226,3 +193,6 @@ unique_values = df['Zahlungsempfänger*in'].unique()
 print(unique_values)
 
 print(df['Zahlungsempfänger*in'].value_counts())
+
+
+print(zahlungsempfänger_zuweisung)
