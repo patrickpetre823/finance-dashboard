@@ -6,12 +6,13 @@ from . import ids
 
 
 def render(app: Dash, data: pd.DataFrame) -> html.Div:
-    
+    print("1111111111111111111111111111")
     @app.callback(
         Output(ids.BAR_CHART, "children"),
         Input(ids.YEAR_DROPDOWN, "value")
     )
     def update_bar_chart(years: list[str]) -> html.Div:
+        print("2222222222222222222222222222")
         filtered_data = data.query("year in @years")
         if filtered_data.shape[0] == 0:
             return html.Div("No Data selected")
@@ -23,6 +24,8 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
                   aggfunc="sum",
                   fill_value=0
             )
+            print("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
+            print(data["Betrag (€)"])
             return pt.reset_index().sort_values("Betrag (€)", ascending=False)
         
         fig = px.bar(
