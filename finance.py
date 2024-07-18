@@ -23,7 +23,7 @@ def main() -> None:
 def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
     unique_values = df['Zahlungsempfänger*in'].unique()
     zahlungsempfänger_zuweisung = pd.DataFrame()
-    zahlungsempfänger_zuweisung['unique_empfänger'] = unique_values
+    zahlungsempfänger_zuweisung['Zahlungsempfänger*in'] = unique_values
     zahlungsempfänger_zuweisung['categories'] = np.nan
     zahlungsempfänger_zuweisung['consumption_categories'] = np.nan
     
@@ -108,6 +108,7 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 break
             
         #telekommunikation
+        n = 0
         for telekommunikation in telekommunikation:
 
             if telekommunikation in empfänger:
@@ -125,6 +126,7 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 break
 
         #inneneinrichtung
+        n = 0
         for inneneinrichtung in inneneinrichtung:
 
             if inneneinrichtung in empfänger:
@@ -149,6 +151,12 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
         print('-----------------------------------------' )
 
         print(zahlungsempfänger_zuweisung.head(10))
+    
+    
+    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' )
+
+    df = df.merge(right=zahlungsempfänger_zuweisung, how= 'left', on = 'Zahlungsempfänger*in')
+    print(df.columns)
     return df
 
 def load_data(file_path) -> pd.DataFrame:
@@ -166,11 +174,11 @@ def load_data(file_path) -> pd.DataFrame:
     df['Buchungsdatum'] = pd.to_datetime(df['Buchungsdatum'], dayfirst=True)
     df['jahr'] = df['Buchungsdatum'].dt.year.astype(str)
     df['monat'] = df['Buchungsdatum'].dt.month.astype(str)
-    categories = ['Ersparnis', 'Konsum', 'Sonstige Ausgaben']
-    consumption_categories = ["Ersparnisse", "Wohnen", "Verkehr", 'Nahrungsmittel', 'Freizeit', 'Restaurante', 'Telekommunikation', 'Gesundheit', 'Bekleidung', 'Sonstige', 'Inneneinrichtung/Wohnen']
-
-    df['categories'] = np.nan
-    df['consumption_categories'] = np.nan
+    #categories = ['Ersparnis', 'Konsum', 'Sonstige Ausgaben']
+    #consumption_categories = ["Ersparnisse", "Wohnen", "Verkehr", 'Nahrungsmittel', 'Freizeit', 'Restaurante', 'Telekommunikation', 'Gesundheit', 'Bekleidung', 'Sonstige', 'Inneneinrichtung/Wohnen']
+#
+    #df['categories'] = np.nan
+    #df['consumption_categories'] = np.nan
 
     df_clean = categorize_data(df)
 
