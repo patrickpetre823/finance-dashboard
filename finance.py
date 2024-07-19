@@ -16,7 +16,7 @@ file_path = 'C:\\Patrick\\VSCode\\Umsatzliste_Girokonto.csv'
 def main() -> None:
     data = load_data(file_path)
     app = Dash(external_stylesheets=[BOOTSTRAP])
-    app.title = "Dashboard"
+    app.title = "Finance Dashboard"
     app.layout = create_layout(app, data)
     app.run()
 

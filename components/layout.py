@@ -9,12 +9,7 @@ def create_layout(app: Dash, data: pd.DataFrame) -> html.Div:
         children=[
             html.H1(app.title),
             html.Hr(),
-            html.Div(
-                className='dropdown-container',
-                children=[
-                    year_dropdown.render(app, data),
-                ]
-            ),
+            html.Div(className='dropdown-container',children=[year_dropdown.render(app, data)]),
             bar_chart.render(app, data)
         ]
     )

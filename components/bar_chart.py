@@ -17,7 +17,7 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
         if filtered_data.shape[0] == 0:
             return html.Div("No Data selected")
         
-        def create_privot_table() -> pd.DataFrame:
+        def create_pivot_table() -> pd.DataFrame:
             pt = filtered_data.pivot_table(
                   values=data["Betrag (€)"],
                   index=data['consumption_categories'],
