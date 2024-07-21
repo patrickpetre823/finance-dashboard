@@ -32,8 +32,6 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
 
         # Iterate through Empfänger
         empfänger = unique_values[i] 
-
-        print('Empfänger der geprüft wird :' + empfänger)
         empfänger = empfänger.lower() 
 
 
@@ -64,11 +62,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                print('NAHRUNGSMITTEL DETECTED ' + empfänger)
                 zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
                 zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Nahrungsmittel'
-                print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
-                print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
                 break
             
         #Verkehr erb
@@ -82,11 +77,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                print('Verkehr DETECTED ' + empfänger)
                 zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
                 zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Verkehr'
-                print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
-                print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
                 break
             
         #wohnen
@@ -100,11 +92,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                print('Wohnen DETECTED ' + empfänger)
                 zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
                 zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Wohnen'
-                print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
-                print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
                 break
             
         #telekommunikation
@@ -118,11 +107,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                print('telekommunikation DETECTED ' + empfänger)
                 zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
                 zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Telekommunikation'
-                print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
-                print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
                 break
 
         #inneneinrichtung
@@ -136,11 +122,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                print('inneneinrichtung DETECTED ' + empfänger)
                 zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
                 zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Inneneinrichtung'
-                print('Neue kategorie :' + str(zahlungsempfänger_zuweisung['categories'][i]))
-                print('Neue konsum kategorie :' + str(zahlungsempfänger_zuweisung['consumption_categories'][i]))
                 break
 
 
@@ -148,15 +131,7 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
             print('Keine Zuordnung ' + empfänger)
 
 
-        print('-----------------------------------------' )
-
-        print(zahlungsempfänger_zuweisung.head(10))
-    
-    
-    print('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX' )
-
     df = df.merge(right=zahlungsempfänger_zuweisung, how= 'left', on = 'Zahlungsempfänger*in')
-    print(df.columns)
     return df
 
 def load_data(file_path) -> pd.DataFrame:
@@ -164,23 +139,28 @@ def load_data(file_path) -> pd.DataFrame:
     
     col_names = ["Buchungsdatum","Wertstellung","Status","Zahlungspflichtige*r","Zahlungsempfänger*in","Verwendungszweck",
                  "Umsatztyp","IBAN","Betrag (€)","Gläubiger-ID","Mandatsreferenz","Kundenreferenz"]
-    
-    #
-    # df = pd.read_csv('C:\\Patrick\\VSCode\\Umsatzliste_Girokonto.csv', on_bad_lines='warn', names=col_names, delimiter=';')
+
     df = pd.read_csv(file_path, on_bad_lines='warn', names=col_names, delimiter=';')
     df = df.iloc[1:]
     
-    print(df['Buchungsdatum'])
     df['Buchungsdatum'] = pd.to_datetime(df['Buchungsdatum'], dayfirst=True)
     df['jahr'] = df['Buchungsdatum'].dt.year.astype(str)
     df['monat'] = df['Buchungsdatum'].dt.month.astype(str)
-    #categories = ['Ersparnis', 'Konsum', 'Sonstige Ausgaben']
-    #consumption_categories = ["Ersparnisse", "Wohnen", "Verkehr", 'Nahrungsmittel', 'Freizeit', 'Restaurante', 'Telekommunikation', 'Gesundheit', 'Bekleidung', 'Sonstige', 'Inneneinrichtung/Wohnen']
-#
-    #df['categories'] = np.nan
-    #df['consumption_categories'] = np.nan
+    print(df["monat"])
 
     df_clean = categorize_data(df)
+    wert = df["Betrag (€)"][1]
+    print(wert)
+    print(type(wert))
+
+    df["Betrag (€)"] = pd.to_numeric(df['Betrag (€)'].astype(str).str.replace(',','.'))
+
+    wert = df["Betrag (€)"][1]
+    print(wert)
+    print(type(wert))
+    print(df_clean.columns)
+    df_monthly = df_clean.groupby(['monat', 'consumption_categories'])["Betrag (€)"].sum()
+    print(df_monthly.head(3))
 
     return df_clean
 
@@ -196,23 +176,23 @@ if __name__ == '__main__':
 
 
 
-print(zahlungsempfänger_zuweisung)
-
-
-# Intialise the categories_df_all dataframe
-categories_df_all = pd.DataFrame()
-
-
-
-categories_df_all.to_csv("categories_df_all.csv", index=False)
-
-
-
-print(len(df))
-unique_values = df['Zahlungsempfänger*in'].unique()
-print(unique_values)
-
-print(df['Zahlungsempfänger*in'].value_counts())
-
-
-print(zahlungsempfänger_zuweisung)
+#print(zahlungsempfänger_zuweisung)
+#
+#
+## Intialise the categories_df_all dataframe
+#categories_df_all = pd.DataFrame()
+#
+#
+#
+#categories_df_all.to_csv("categories_df_all.csv", index=False)
+#
+#
+#
+#print(len(df))
+#unique_values = df['Zahlungsempfänger*in'].unique()
+#print(unique_values)
+#
+#print(df['Zahlungsempfänger*in'].value_counts())
+#
+#
+#print(zahlungsempfänger_zuweisung)
