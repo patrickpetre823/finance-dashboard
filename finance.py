@@ -7,6 +7,7 @@ from dash import Dash
 from dash_bootstrap_components.themes import BOOTSTRAP
 from components.layout import create_layout
 from os.path import dirname, join
+import calendar
 
 #current_dir = dirname(__file__)
 #file_path = join(current_dir, "./Umsatzliste_Girokonto")
@@ -145,20 +146,25 @@ def load_data(file_path) -> pd.DataFrame:
     
     df['Buchungsdatum'] = pd.to_datetime(df['Buchungsdatum'], dayfirst=True)
     df['jahr'] = df['Buchungsdatum'].dt.year.astype(str)
-    df['monat'] = df['Buchungsdatum'].dt.month.astype(str)
+    df['monat'] = df['Buchungsdatum'].dt.month
+    df['monat'] = df['monat'].apply(lambda x: calendar.month_name[x])
     print(df["monat"])
 
     df_clean = categorize_data(df)
-    wert = df["Betrag (€)"][1]
+    wert = df_clean.loc[1,"Betrag (€)"]
+    print(wert)
+    print(type(wert))
+    print("------------------------------------")
+    df_clean["Betrag (€)"] = pd.to_numeric(df_clean['Betrag (€)'].astype(str).str.replace(',','.'))
+    print("------------------------------------")
+    wert = df_clean.loc[1,"Betrag (€)"]
     print(wert)
     print(type(wert))
 
-    df["Betrag (€)"] = pd.to_numeric(df['Betrag (€)'].astype(str).str.replace(',','.'))
+    df_essen = df_clean[df_clean["consumption_categories"]=="Nahrungsmittel"]
+    wert = df_essen.loc[1,"Betrag (€)"]
 
-    wert = df["Betrag (€)"][1]
-    print(wert)
-    print(type(wert))
-    print(df_clean.columns)
+    #df = dat.astype({'ProfitLoss': 'float'})
     df_monthly = df_clean.groupby(['monat', 'consumption_categories'])["Betrag (€)"].sum()
     print(df_monthly.head(3))
 
