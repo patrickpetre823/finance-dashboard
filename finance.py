@@ -12,7 +12,7 @@ import calendar
 #current_dir = dirname(__file__)
 #file_path = join(current_dir, "./Umsatzliste_Girokonto")
 
-file_path = 'C:\\Patrick\\VSCode\\Umsatzliste_Girokonto.csv'
+file_path = 'C:\\Patrick\\VSCode\\Git_bank\\Umsatzliste_Girokonto2.csv'
 
 def main() -> None:
     data = load_data(file_path)
@@ -27,8 +27,9 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
     zahlungsempfänger_zuweisung['Zahlungsempfänger*in'] = unique_values
     zahlungsempfänger_zuweisung['categories'] = np.nan
     zahlungsempfänger_zuweisung['consumption_categories'] = np.nan
-    
-
+    zahlungsempfänger_zuweisung['categories'].astype(str)
+    zahlungsempfänger_zuweisung['consumption_categories'].astype(str)
+    print(unique_values)
     for i in range(len(unique_values)):
 
         # Iterate through Empfänger
@@ -40,17 +41,21 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
         # Category suchbegriffe
-        supermarkets = ['penny', 'edeka', 'rewe', 'lidl', 'aldi', 'dm-drogerie', 'tedi', 'dm.drogerie']
+        supermarkets = ['penny', 'edeka', 'rewe', 'lidl', 'aldi', 'dm-drogerie', 'tedi', 'dm.drogerie', 'tesco']
 
-        verkehr = ['tankstelle', 'esso', 'shell']
+        verkehr = ['tankstelle', 'esso', 'shell', 'airport', 'düsseldorf', 'stuttgart']
 
         wohnen = ['schneider', 'e.on', 'rundfunk','enbw']
 
         telekommunikation = ['vodafone', 'simon']
 
+        essen_gehen = ['takumi', 'mala.town', 'fishcotheque', 'nando']
+
         freizeit = ['fit', 'block']
 
-        inneneinrichtung = ['obi', 'ikea', 'krebs', 'koelle','pflanzen', 'farben']
+        inneneinrichtung = ['obi', 'ikea', 'krebs', 'koelle','pflanzen', 'farben', 'bolia', 'imperia', 'bauhaus', 'flora']
+
+        gesundheit = ['apotheke']
 
         n = 0
         #Supermärkte
@@ -63,11 +68,11 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
-                zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Nahrungsmittel'
+                zahlungsempfänger_zuweisung.loc[i, 'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i, 'consumption_categories'] = 'Nahrungsmittel'
                 break
             
-        #Verkehr erb
+        #Verkehr
         n = 0
         for verkehr in verkehr:
 
@@ -78,8 +83,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
-                zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Verkehr'
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Verkehr'
                 break
             
         #wohnen
@@ -93,8 +98,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
-                zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Wohnen'
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Wohnen'
                 break
             
         #telekommunikation
@@ -108,8 +113,8 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
-                zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Telekommunikation'
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Telekommunikation'
                 break
 
         #inneneinrichtung
@@ -123,16 +128,70 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
                 None
 
             if n > 0:
-                zahlungsempfänger_zuweisung['categories'][i] = 'Konsum'
-                zahlungsempfänger_zuweisung['consumption_categories'][i] = 'Inneneinrichtung'
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Inneneinrichtung'
                 break
 
+        #gesundheit
+        n = 0
+        for gesundheit in gesundheit:
 
-        if n == 0:
-            print('Keine Zuordnung ' + empfänger)
+            if gesundheit in empfänger:
+                n =+1
 
+            else:
+                None
 
+            if n > 0:
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Gesundheit'
+                break
+        
+        #essen_gehen
+        n = 0
+        for essen_gehen in essen_gehen:
+
+            if essen_gehen in empfänger:
+                n =+1
+
+            else:
+                None
+
+            if n > 0:
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Essen gehen'
+                break
+        
+        #freizeit
+        n = 0
+        for freizeit in freizeit:
+
+            if freizeit in empfänger:
+                n =+1
+
+            else:
+                None
+
+            if n > 0:
+                zahlungsempfänger_zuweisung.loc[i,'categories'] = 'Konsum'
+                zahlungsempfänger_zuweisung.loc[i,'consumption_categories'] = 'Freizeit'
+                break
+
+    no_match = zahlungsempfänger_zuweisung[zahlungsempfänger_zuweisung['consumption_categories'].isna()]
+    print("------------------------------------")
+    print(no_match)            
+    print("------------------------------------")
+
+    
     df = df.merge(right=zahlungsempfänger_zuweisung, how= 'left', on = 'Zahlungsempfänger*in')
+    schneider = df[df['Zahlungsempfänger*in']=='Hans Schneider']
+    print("------------------------------------")
+    print(schneider)            
+    print("------------------------------------")
+    wohnen = df[df['consumption_categories']=='Wohnen']
+    print("------------------------------------")
+    print(wohnen[['Wertstellung','Zahlungsempfänger*in', 'Betrag (€)']])            
+    print("------------------------------------")
     return df
 
 def load_data(file_path) -> pd.DataFrame:
@@ -142,7 +201,8 @@ def load_data(file_path) -> pd.DataFrame:
                  "Umsatztyp","IBAN","Betrag (€)","Gläubiger-ID","Mandatsreferenz","Kundenreferenz"]
 
     df = pd.read_csv(file_path, on_bad_lines='warn', names=col_names, delimiter=';')
-    df = df.iloc[1:]
+    df = df.iloc[5:]
+    
     
     df['Buchungsdatum'] = pd.to_datetime(df['Buchungsdatum'], dayfirst=True)
     df['jahr'] = df['Buchungsdatum'].dt.year.astype(str)
@@ -155,6 +215,7 @@ def load_data(file_path) -> pd.DataFrame:
     print(wert)
     print(type(wert))
     print("------------------------------------")
+    df_clean["Betrag (€)"] = df_clean['Betrag (€)'].str.replace('.','')
     df_clean["Betrag (€)"] = pd.to_numeric(df_clean['Betrag (€)'].astype(str).str.replace(',','.'))
     print("------------------------------------")
     wert = df_clean.loc[1,"Betrag (€)"]
@@ -166,7 +227,8 @@ def load_data(file_path) -> pd.DataFrame:
 
     #df = dat.astype({'ProfitLoss': 'float'})
     df_monthly = df_clean.groupby(['monat', 'consumption_categories'])["Betrag (€)"].sum()
-    print(df_monthly.head(3))
+    
+    print(df_monthly.head(7))
 
     return df_clean
 

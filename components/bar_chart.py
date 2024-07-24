@@ -51,10 +51,10 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
               labels={'sum of y':'Money Spent',
                       'x' : 'Monat'},
               text_auto=True,
-              range_y = [0, -1000],
+              range_y = [0, -2000],
         )
 
-        fig.update_xaxes(categoryorder='array', categoryarray= ['March', 'April', 'May', 'June' ])
+        fig.update_xaxes(categoryorder='array', categoryarray= ['January', 'February', 'March', 'April', 'May', 'June' ])
 
         dfs = data.groupby('monat')['Betrag (€)'].sum()
         print(dfs)
