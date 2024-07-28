@@ -24,12 +24,18 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
     #df_mean = df_mean.groupby('consumption_categories')['Betrag (€)'].mean()
     #print(df_mean)
 
-    labels = list(df_mean.keys())
     
     values = list(df_mean.values())
     values = list(map(float, values))
     values = [fabs(value) for value in values ]
 
+    
+    labels = list(df_mean.keys())
+
+    for i, label in enumerate(labels):
+        labels[i] = labels[i] + ' : ' + str(round(values[i],)) + ' €'
+    #labels = [i for label, f'{label}: {values[i]}',label in enumerate(labels)]
+    
     sum_avg = round(sum(values), 0)
     sum_avg = '{:,}'.format(sum_avg)
 
@@ -47,12 +53,13 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
                       
 
     fig.update_layout(font=dict(family='Arial', size=16, color='#909090'),
-                   legend=dict(x=1, y=0.5),
+                   legend=dict(x=1, y=0.5, ),
                    width=1000,
                    height=1000,
                    margin=dict(t=50, b=0, l=50, r=0),
                    template='ggplot2',
-                   legend_title_text='Categories:'
+                   legend_title_text='Categories:',
+                   
                     )
 
     
