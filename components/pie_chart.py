@@ -5,6 +5,8 @@ import plotly.express as px
 from . import ids
 import plotly.graph_objects as go
 from math import *
+import plotly.io as pio
+
 
 def render(app: Dash, data: pd.DataFrame) -> html.Div:
 
@@ -35,13 +37,26 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
     fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
     
 
-    fig.update_layout(title=f"Total Money per Month: {sum_avg} €",
-                  font=dict(family='Arial', size=12, color='#909090'),
-                   legend=dict(x=2, y=0.5)
+    fig.update_layout(title=dict(text=f"Total Money spent per Month: {sum_avg} €", 
+                                 xanchor='center',
+                                 yanchor= 'top',
+                                 y=0.9,
+                                )
+    )
+
+                      
+
+    fig.update_layout(font=dict(family='Arial', size=16, color='#909090'),
+                   legend=dict(x=1, y=0.5),
+                   width=1000,
+                   height=1000,
+                   margin=dict(t=50, b=0, l=50, r=0),
+                   template='ggplot2',
+                   legend_title_text='Categories:'
                     )
 
     
-    pie_chart = html.Div(dcc.Graph(figure=fig, style={'width': '90vh', 'height': '90vh'}), id=ids.PIE_CHART,)
+    pie_chart = html.Div(dcc.Graph(figure=fig), id=ids.PIE_CHART,)
 
 
-    return html.Div(children=[html.H6('Average Money Spent Per Month'), pie_chart],)
+    return html.Div(children=[pie_chart],)
