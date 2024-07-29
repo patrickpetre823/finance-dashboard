@@ -40,7 +40,7 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
     sum_avg = '{:,}'.format(sum_avg)
 
     #fig = px.pie(values=values, names=labels)
-    fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.2)])
     
 
     fig.update_layout(title=dict(text=f"Total Money spent per Month: {sum_avg} €", 
@@ -56,8 +56,8 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
                    legend=dict(x=1, y=0.5, ),
                    width=1000,
                    height=1000,
-                   margin=dict(t=50, b=0, l=50, r=0),
-                   template='ggplot2',
+                   margin=dict(t=50, b=0, l=250, r=0),
+                   template='seaborn',
                    legend_title_text='Categories:',
                    
                     )
