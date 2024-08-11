@@ -13,17 +13,8 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
 
     df_mean = (data.groupby(['monat', 'consumption_categories'], as_index=False)['Betrag (€)'].sum().groupby('consumption_categories')['Betrag (€)'].mean())
 
-    print(df_mean)
-    print(type(df_mean))
-    print(df_mean.shape)
 
     df_mean = df_mean.to_dict()
-
-    print(df_mean)
-    print(type(df_mean))
-    #df_mean = df_mean.groupby('consumption_categories')['Betrag (€)'].mean()
-    #print(df_mean)
-
     
     values = list(df_mean.values())
     values = list(map(float, values))
@@ -34,33 +25,34 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
 
     for i, label in enumerate(labels):
         labels[i] = labels[i] + ' : ' + str(round(values[i],)) + ' €'
-    #labels = [i for label, f'{label}: {values[i]}',label in enumerate(labels)]
     
     sum_avg = round(sum(values), 0)
     sum_avg = '{:,}'.format(sum_avg)
 
-    #fig = px.pie(values=values, names=labels)
-    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.2)])
+
+    fig = go.Figure(data=[go.Pie(labels=labels, 
+                                 values=values, 
+                                 hole=.2,
+                                 )])
     
 
     fig.update_layout(title=dict(text=f"Total Money spent per Month: {sum_avg} €", 
                                  xanchor='center',
                                  yanchor= 'top',
                                  y=0.9,
+                                 x=0.5
                                 )
     )
 
-                      
 
-    fig.update_layout(font=dict(family='Arial', size=16, color='#909090'),
+    fig.update_layout(font=dict(family='Arial', size=16),
                    legend=dict(x=1, y=0.5, ),
                    width=1000,
                    height=1000,
                    margin=dict(t=50, b=0, l=250, r=0),
-                   template='seaborn',
                    legend_title_text='Categories:',
                    
-                    )
+                )
 
     
     pie_chart = html.Div(dcc.Graph(figure=fig), id=ids.PIE_CHART,)

@@ -30,6 +30,18 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
             return pt.reset_index()
             #return pt.reset_index().sort_values("Betrag (€)", ascending=False)
         
+        color_map={
+                "Wohnen": "#636efa",
+                "Nahrungsmittel": "#ef553b",
+                "Telekommunikation": "#ff6692",
+                "Verkehr": "#00cc96",
+                "Essen gehen": "#ab63fa",
+                "Inneneinrichtung": "#ffa15a",
+                "Gesundheit": "#19d3f3",
+                "Freizeit":  "#b6e880",
+                }
+
+
         fig = px.histogram(
               data,
               x=data['monat'],
@@ -38,10 +50,15 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
               labels={'sum of y':'Money Spent',
                       'x' : 'Monat'},
               text_auto=True,
-              range_y = [0, -2000],
+              range_y = [0, -3000],
+              color_discrete_map=color_map
         )
 
-        fig.update_xaxes(categoryorder='array', categoryarray= ['January', 'February', 'March', 'April', 'May', 'June' ])
+        fig.update_xaxes(categoryorder='array', categoryarray= ['January', 'February', 'March', 'April', 'May', 'June','July','August','September','October','November', 'December' ])
+
+        fig.update_layout(font=dict(family='Arial', size=16, color='#909090'),
+                          template='seaborn')
+
 
         dfs = data.groupby('monat')['Betrag (€)'].sum()
         print(dfs)
@@ -50,19 +67,21 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
         
         
         
+        # Add annotation
+
+        #fig.add_trace(go.Scatter(
+        #    x=data['monat'], 
+        #    y=dfs[:],
+        #    text=dfs[:],
+        #    mode='text',
+        #    textposition='top center',
+        #    textfont=dict(
+        #        size=18,
+        #    ),
+        #    showlegend=False
+        #))
+
         
-        fig.add_trace(go.Scatter(
-            x=data['monat'], 
-            y=dfs[:],
-            text=dfs[:],
-            mode='text',
-            textposition='top center',
-            textfont=dict(
-                size=18,
-            ),
-            showlegend=False
-        ))
-        fig.update_layout(template='seaborn',)
         
         return html.Div(dcc.Graph(figure=fig), id=ids.BAR_CHART)
     # 
