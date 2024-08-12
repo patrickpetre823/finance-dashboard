@@ -8,7 +8,8 @@ from dash_bootstrap_components.themes import BOOTSTRAP
 from components.layout import create_layout
 from os.path import dirname, join
 import calendar
-
+import glob
+import os
 
 #current_dir = dirname(__file__)
 #file_path = join(current_dir, "./Umsatzliste_Girokonto")
@@ -201,21 +202,41 @@ def load_data(file_path) -> pd.DataFrame:
     col_names = ["Buchungsdatum","Wertstellung","Status","Zahlungspflichtige*r","Zahlungsempfänger*in","Verwendungszweck",
                  "Umsatztyp","IBAN","Betrag (€)","Gläubiger-ID","Mandatsreferenz","Kundenreferenz"]
 
-    df = pd.read_csv(file_path, on_bad_lines='warn', names=col_names, delimiter=';')
-    df = df.iloc[5:]
+    #df = pd.read_csv(file_path, on_bad_lines='warn', names=col_names, delimiter=';')
+    #df = df.iloc[5:]
     
+    path = r'C:\Patrick\VSCode\Git_bank' # use your path
+    all_files = glob.glob(os.path.join(path , "*.csv"))
+    print(path)
+    li = []
+    print("All Files" )
+    print(all_files)
+
+    for filename in all_files:
+        df = pd.read_csv(filename, on_bad_lines='warn', names=col_names, delimiter=';')
+        df = df.iloc[5:]
+        li.append(df)
+
+    df = pd.concat(li, axis=0, ignore_index=True)
+    df = df.drop_duplicates()
     
+    print(df['Buchungsdatum'])
+    print(df.info())
+
+    df['Buchungsdatum'] = df['Buchungsdatum'].astype("string")
+    print(df.info())
     df['Buchungsdatum'] = pd.to_datetime(df['Buchungsdatum'], dayfirst=True)
     df['jahr'] = df['Buchungsdatum'].dt.year.astype(str)
     df['monat'] = df['Buchungsdatum'].dt.month
     df['monat'] = df['monat'].apply(lambda x: calendar.month_name[x])
-    print(df["monat"])
 
     df_clean = categorize_data(df)
+
+    #df_clean= df_clean[df_clean >= 0].dropna()
+    df_clean = df_clean[df_clean["Umsatztyp"]=="Ausgang"]
+
     wert = df_clean.loc[1,"Betrag (€)"]
-    print(wert)
-    print(type(wert))
-    print("------------------------------------")
+
     df_clean["Betrag (€)"] = df_clean['Betrag (€)'].str.replace('.','')
     df_clean["Betrag (€)"] = pd.to_numeric(df_clean['Betrag (€)'].astype(str).str.replace(',','.'))
     print("------------------------------------")
@@ -223,8 +244,14 @@ def load_data(file_path) -> pd.DataFrame:
     print(wert)
     print(type(wert))
 
+    df_clean.to_csv('clean.csv')
+
+    print("------------------------------------")
+    df_wohnen = df_clean[(df_clean['consumption_categories'] == 'Wohnen') & (df_clean['monat'] == 'July')]
+    print(df_wohnen)
+    print("------------------------------------")
     df_essen = df_clean[df_clean["consumption_categories"]=="Nahrungsmittel"]
-    wert = df_essen.loc[1,"Betrag (€)"]
+    #wert = df_essen.loc[1,"Betrag (€)"]
 
     #df = dat.astype({'ProfitLoss': 'float'})
     df_monthly = df_clean.groupby(['monat', 'consumption_categories'])["Betrag (€)"].sum()
