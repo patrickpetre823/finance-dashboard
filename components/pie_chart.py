@@ -10,10 +10,32 @@ import plotly.io as pio
 
 def render(app: Dash, data: pd.DataFrame) -> html.Div:
 
+    # When calculating the Avg. we should not take the ongoing month into calc, so it does not skew the data
 
+
+    all_months = data["monat"].unique()
+    last_month = all_months[0]
+  
+    idx_month = data.columns.get_loc("monat")
+
+    n = 0
+
+    #Iterating through dataframe to find the number of entries in current month
+    for idx, row in data.iterrows():
+
+        if data.iloc[idx, idx_month] == last_month:
+            n += 1
+        else:
+            break
+    
+    # Dropping those rows from the DF
+    data = data.iloc[n:]
+ 
+
+    # Grouping and avg by month and category
     df_mean = (data.groupby(['monat', 'consumption_categories'], as_index=False)['Betrag (€)'].sum().groupby('consumption_categories')['Betrag (€)'].mean())
 
-
+    # Creating values and labels for Diagram
     df_mean = df_mean.to_dict()
     
     values = list(df_mean.values())
@@ -26,10 +48,11 @@ def render(app: Dash, data: pd.DataFrame) -> html.Div:
     for i, label in enumerate(labels):
         labels[i] = labels[i] + ' : ' + str(round(values[i],)) + ' €'
     
+
     sum_avg = round(sum(values), 0)
     sum_avg = '{:,}'.format(sum_avg)
 
-
+    
     fig = go.Figure(data=[go.Pie(labels=labels, 
                                  values=values, 
                                  hole=.2,

@@ -49,7 +49,7 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
 
         verkehr = ['tankstelle', 'esso', 'shell', 'airport', 'düsseldorf', 'stuttgart', 'parkhausbetriebe']
 
-        wohnen = ['schneider', 'e.on', 'rundfunk','enbw', 'søstrene Grene']
+        wohnen = ['schneider', 'e.on', 'rundfunk','enbw' ]
 
         telekommunikation = ['vodafone', 'simon']
 
@@ -57,7 +57,7 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
 
         freizeit = ['fit', 'block']
 
-        inneneinrichtung = ['obi', 'ikea', 'krebs', 'koelle','pflanzen', 'farben', 'bolia', 'imperia', 'bauhaus', 'flora']
+        inneneinrichtung = ['obi', 'ikea', 'krebs', 'koelle','pflanzen', 'farben', 'bolia', 'imperia', 'bauhaus', 'flora', 'søstrene Grene']
 
         gesundheit = ['apotheke']
 
@@ -193,7 +193,7 @@ def categorize_data(df: pd.DataFrame) -> pd.DataFrame:
     print(schneider)            
     print("------------------------------------")
     wohnen = df[df['consumption_categories']=='Wohnen']
-    print("------------------------------------")
+    print("-----------------ALLES WOHNEN-------------------")
     print(wohnen[['Wertstellung','Zahlungsempfänger*in', 'Betrag (€)']])            
     print("------------------------------------")
     return df
