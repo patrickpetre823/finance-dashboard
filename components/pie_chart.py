@@ -11,8 +11,6 @@ import plotly.io as pio
 def render(app: Dash, data: pd.DataFrame) -> html.Div:
 
     # When calculating the Avg. we should not take the ongoing month into calc, so it does not skew the data
-
-
     all_months = data["monat"].unique()
     last_month = all_months[0]
   
