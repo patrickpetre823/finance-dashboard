@@ -12,17 +12,15 @@ def categorize_transfer(df: pd.DataFrame) -> pd.DataFrame:
     zahlungsempfänger_zuweisung['categories'].astype(str)
     zahlungsempfänger_zuweisung['consumption_categories'].astype(str)
 
+    # Iterate through unique Empfänger
     for i in range(len(unique_values)):
 
-        # Iterate through Empfänger
         empfänger = unique_values[i] 
         empfänger = empfänger.lower() 
 
 
-        #print('Jetzige kategorie :' + str(df['categories'][i]))
 
-
-        # Category suchbegriffe
+        # Category searchwords
         supermarkets = ['penny', 'edeka', 'rewe', 'lidl', 'aldi', 'dm-drogerie', 'tedi', 'dm.drogerie', 'tesco']
 
         verkehr = ['tankstelle', 'esso', 'shell', 'airport', 'düsseldorf', 'stuttgart', 'parkhausbetriebe']
@@ -166,12 +164,5 @@ def categorize_transfer(df: pd.DataFrame) -> pd.DataFrame:
 
     
     df = df.merge(right=zahlungsempfänger_zuweisung, how= 'left', on = 'Zahlungsempfänger*in')
-    schneider = df[df['Zahlungsempfänger*in']=='Hans Schneider']
-    print("------------------------------------")
-    print(schneider)            
-    print("------------------------------------")
-    wohnen = df[df['consumption_categories']=='Wohnen']
-    print("-----------------ALLES WOHNEN-------------------")
-    print(wohnen[['Wertstellung','Zahlungsempfänger*in', 'Betrag (€)']])            
-    print("------------------------------------")
+
     return df
